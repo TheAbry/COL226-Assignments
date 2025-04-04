@@ -1,0 +1,109 @@
+/* STARTER CODE */
+
+app([], L, L).
+app([X|R], L, [X|Z]) :- append(R, L, Z).
+
+mycons(_, [], []) :- !.
+mycons(X, [Y|R], [(X,Y)|S]) :- mycons(X, R, S).
+
+/* HELPER FUNCTIONS */
+mem(_, []) :- fail.
+mem(X, [X|_]) :- !.
+mem(X, [_|R]) :- mem(X, R).
+mem((X,Y), reftransclos(R,S)) :- mem((X,Y), reftransclos(R,S), []). 
+
+/* PART A: SPECIFICATION */
+
+mem((X,X), reftransclos(_,S), _) :- mem(X, S),!.
+mem((X,Y), reftransclos(R,_), _) :- mem((X,Y), R),!.
+mem((X,Z), reftransclos(R,S), A) :- mem((X,Y), R), \+mem(Y, A), mem((Y,Z), reftransclos(R,S), [X|A]),!.
+mem((X,Z), reftransclos(R,S), A) :- mem((Y,Z), R), \+mem(Y, A), mem((X,Y), reftransclos(R,S), [X|A]).
+
+mem((X,X), eqclos(_,S)) :- mem(X, S), !.
+mem((X,Y), eqclos(R,S)) :- mem((X,Y), reftransclos(R,S)), !.
+mem((X,Y), eqclos(R,S)) :- mem((Y,X), reftransclos(R,S)), !.
+
+/* BONUS SPECIFICATION 
+
+mem((X,Y), symclos(R)) :- mem((X,Y), R), !.
+mem((X,Y), symclos(R)) :- mem((Y,X), R).
+
+mem((X,Y), eq_clos(R,S)) :- mem((X,Y), symclos(reftransclos(R,S))). */
+
+/* PART B: IMPLEMENTATION */
+
+interI([], _, []) :- !.
+interI([X|S1], S2, [X|S]) :- mem(X, S2), interI(S1, S2, S), !.
+interI([X|S1], S2, S) :- \+ mem(X, S2), interI(S1, S2, S).
+
+diffI([], _, []) :- !.
+diffI([X|S1], S2, [X|S]) :- \+ mem(X, S2), diffI(S1, S2, S), !.
+diffI([X|S1], S2, S) :- mem(X, S2), diffI(S1, S2, S).
+
+cartesianI([], _, []) :- !.
+cartesianI([X|S1], S2, S) :- mycons(X, S2, S3), cartesianI(S1, S2, S4), app(S3, S4, S).
+
+
+
+umem((X,Y), [(X,Z),_]) :- !, Y==Z.
+umem(X, [_,R]) :- umem(X, R).
+
+domain(true, boolD).
+domain(false, boolD).
+
+domain(intT, typeD).
+domain(boolT, typeD).
+domain(stringT, typeD).
+domain(unitT, typeD).
+domain(charT, typeD).
+
+hastype(_, num(N), intT) :- integer(N), !.
+hastype(_, bl(B), boolT) :- domain(B, boolD), !.
+hastype(_, string(_), stringT) :- !.
+
+hastype(G, var(X), T) :- umem((X, T), G), domain(T, typeD), !.
+
+hastype(_, print(_), unitT) :- !.
+hastype(_, assign(var(_), _), unitT) :- !.
+
+hastype(G, plus(E1, E2), intT) :- hastype(G, E1, intT), hastype(G, E2, intT).
+hastype(G, sub(E1, E2), intT) :- hastype(G, E1, intT), hastype(G, E2, intT).
+hastype(G, times(E1, E2), intT) :- hastype(G, E1, intT), hastype(G, E2, intT).
+hastype(G, div(E1, E2), intT) :- hastype(G, E1, intT), hastype(G, E2, intT).
+hastype(G, pow(E1, E2), intT) :- hastype(G, E1, intT), hastype(G, E2, intT).
+hastype(G, mod(E1, E2), intT) :- hastype(G, E1, intT), hastype(G, E2, intT).
+
+hastype(G, abs(E), intT) :- hastype(G, E, intT).
+
+hastype(G, eq(E1, E2), boolT) :- hastype(G, E1, intT), hastype(G, E2, intT).
+hastype(G, neq(E1, E2), boolT) :- hastype(G, E1, intT), hastype(G, E2, intT).
+hastype(G, gt(E1, E2), boolT) :- hastype(G, E1, intT), hastype(G, E2, intT).
+hastype(G, geq(E1, E2), boolT) :- hastype(G, E1, intT), hastype(G, E2, intT).
+hastype(G, lt(E1, E2), boolT) :- hastype(G, E1, intT), hastype(G, E2, intT).
+hastype(G, leq(E1, E2), boolT) :- hastype(G, E1, intT), hastype(G, E2, intT).
+
+hastype(G, eq(E1, E2), boolT) :- hastype(G, E1, boolT), hastype(G, E2, boolT).
+hastype(G, neq(E1, E2), boolT) :- hastype(G, E1, boolT), hastype(G, E2, boolT).
+hastype(G, or(E1, E2), boolT) :- hastype(G, E1, boolT), hastype(G, E2, boolT).
+hastype(G, nor(E1, E2), boolT) :- hastype(G, E1, boolT), hastype(G, E2, boolT).
+hastype(G, xor(E1, E2), boolT) :- hastype(G, E1, boolT), hastype(G, E2, boolT).
+hastype(G, and(E1, E2), boolT) :- hastype(G, E1, boolT), hastype(G, E2, boolT).
+hastype(G, nand(E1, E2), boolT) :- hastype(G, E1, boolT), hastype(G, E2, boolT).
+
+hastype(G, not(E), boolT) :- hastype(G, E, boolT).
+
+hastype(G, push(E1, E2), stringT) :- hastype(G, E1, stringT), hastype(G, E2, charT).
+hastype(G, concat(E1, E2), stringT) :- hastype(G, E1, stringT), hastype(G, E2, stringT).
+hastype(G, substr(E1, E2, E3), stringT) :- hastype(G, E1, stringT), hastype(G, E2, intT), hastype(G, E3, intT).
+hastype(G, find(E1, E2), intT) :- hastype(G, E1, stringT), hastype(G, E2, stringT). 
+hastype(G, count(E1, E2), intT) :- hastype(G, E1, charT), hastype(G, E2, stringT).
+hastype(G, eq(E1, E2), boolT) :- hastype(G, E1, stringT), hastype(G, E2, stringT).
+hastype(G, neq(E1, E2), boolT) :- hastype(G, E1, stringT), hastype(G, E2, stringT).
+
+hastype(G, len(E), intT) :- hastype(G, E, stringT).
+
+hastype(G, ord(E), intT) :- hastype(G, E, charT).
+hastype(G, chr(E), charT) :- hastype(G, E, intT).
+
+hastype(G, eq(E1, E2), boolT) :- hastype(G, E1, charT), hastype(G, E2, charT).
+hastype(G, neq(E1, E2), boolT) :- hastype(G, E1, charT), hastype(G, E2, charT).

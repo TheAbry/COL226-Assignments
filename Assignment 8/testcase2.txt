@@ -1,0 +1,9 @@
+calculate(numeral(N),numeral(N)).
+calculate(plus(E1,E2), numeral(N)) :-
+ calculate(E1, numeral(N1)),
+ calculate(E2, numeral(N2)),
+ N = N1+N2.
+calculate(times(E1,E2), numeral(N)) :-
+ calculate(E1, numeral(N1)),
+ calculate(E2, numeral(N2)),
+ N = N1*N2. 

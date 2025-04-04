@@ -1,0 +1,51 @@
+mem(_, []) :- false.
+mem(X, [X|_]).
+mem(X, [_|R]) :- mem(X, R).
+
+mem(true, boolD).
+mem(false, boolD).
+
+nmem(X, S) :- \+ mem(X, S), !.
+
+hastype(_, num(N), intT).
+hastype(_, bl(B), boolT) :- mem(B, boolD).
+
+hastype(G, var(X), intT) :- mem((X, intT), G).
+hastype(G, var(X), boolT) :- mem((X, boolT), G).
+hastype(_, print(_), unitT).
+
+hastype(G, plus(E1, E2), intT) :- hastype(G, E1, intT), hastype(G, E2, intT).
+hastype(G, sub(E1, E2), intT) :- hastype(G, E1, intT), hastype(G, E2, intT).
+hastype(G, times(E1, E2), intT) :- hastype(G, E1, intT), hastype(G, E2, intT).
+hastype(G, div(E1, E2), intT) :- hastype(G, E1, intT), hastype(G, E2, intT).
+hastype(G, pow(E1, E2), intT) :- hastype(G, E1, intT), hastype(G, E2, intT).
+
+hastype(G, eq(E1, E2), boolT) :- hastype(G, E1, intT), hastype(G, E2, intT).
+hastype(G, gt(E1, E2), boolT) :- hastype(G, E1, intT), hastype(G, E2, intT).
+hastype(G, geq(E1, E2), boolT) :- hastype(G, E1, intT), hastype(G, E2, intT).
+hastype(G, lt(E1, E2), boolT) :- hastype(G, E1, intT), hastype(G, E2, intT).
+hastype(G, leq(E1, E2), boolT) :- hastype(G, E1, intT), hastype(G, E2, intT).
+
+hastype(G, or(E1, E2), boolT) :- hastype(G, E1, boolT), hastype(G, E2, boolT).
+hastype(G, nor(E1, E2), boolT) :- hastype(G, E1, boolT), hastype(G, E2, boolT).
+hastype(G, xor(E1, E2), boolT) :- hastype(G, E1, boolT), hastype(G, E2, boolT).
+hastype(G, and(E1, E2), boolT) :- hastype(G, E1, boolT), hastype(G, E2, boolT).
+hastype(G, nand(E1, E2), boolT) :- hastype(G, E1, boolT), hastype(G, E2, boolT).
+
+hastype(G, not(E1), boolT) :- hastype(G, E1, boolT).
+
+
+/* 
+
+hastype([(a, intT), (b,intT)], plus(times(var(a), num(5)),times(var(b), num(3))), boolT).
+hastype([(a, intT), (b,intT)],plus(times(var(a), num(5)),times(var(b), num(3))), intT).
+hastype([(a, intT), (b, intT)], not(gt(plus(times(var(a), num(5)), times(var(b), num(3))), num(0))), boolT).
+hastype([(a, intT), (b,intT)], not(gt(plus(times(var(a), num(5)),times(var(b), num(3)))), num(0)), intT).
+hastype([(c,boolT)], var(c), intT).
+hastype([(c,boolT)], var(c), boolT).
+hastype([(a, boolT), (b, boolT)], and(or(bl(false), var(a)), and(var(b), bl(true))), boolT).
+hastype([(a, boolT), (b, boolT)], and(or(bl(false), var(a)), and(var(b), bl(true))), intT).
+hastype([(a, boolT)], not(var(a)), boolT).
+hastype([(a, intT), (b, intT)], eq(plus(var(a), num(5)), times(var(b),num(3))), boolT).
+
+*/

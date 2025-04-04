@@ -1,0 +1,10 @@
+hastype([(a, intT), (b,intT)], plus(times(var(a), num(5)),times(var(b), num(3))), boolT).
+hastype([(a, intT), (b,intT)],plus(times(var(a), num(5)),times(var(b), num(3))), intT).
+hastype([(a, intT), (b, intT)], not(gt(plus(times(var(a), num(5)), times(var(b), num(3))), num(0))), boolT).
+hastype([(a, intT), (b,intT)], not(gt(plus(times(var(a), num(5)),times(var(b), num(3)))), num(0)), intT).
+hastype([(c,boolT)], var(c), intT).
+hastype([(c,boolT)], var(c), boolT).
+hastype([(a, boolT), (b, boolT)], and(or(bl(false), var(a)), and(var(b), bl(true))), boolT).
+hastype([(a, boolT), (b, boolT)], and(or(bl(false), var(a)), and(var(b), bl(true))), intT).
+hastype([(a, boolT)], not(var(a)), boolT).
+hastype([(a, intT), (b, intT)], eq(plus(var(a), num(5)), times(var(b),num(3))), boolT).

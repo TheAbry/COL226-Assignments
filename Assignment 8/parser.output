@@ -1,0 +1,885 @@
+   0  $accept : %entry% $end
+
+   1  program : clause_list EOF
+   2          | query EOF
+
+   3  query : term_exp_list Dot
+
+   4  clause_list : clause
+   5              | Comment
+   6              | clause clause_list
+   7              | Comment clause_list
+
+   8  clause : fact Dot
+   9         | rule Dot
+
+  10  fact : term_exp
+
+  11  rule : term_exp Arrow term_exp_list
+
+  12  term_exp : TermIdentifier ParenOpen term_list ParenClose
+  13           | TermIdentifier
+  14           | ParenOpen term_exp ParenClose
+  15           | BooleanConst
+  16           | UnaryBoolOp term
+  17           | term CompOp term
+
+  18  term : TermIdentifier ParenOpen term_list ParenClose
+  19       | term bin_op term
+  20       | term_constant
+  21       | TermIdentifier
+  22       | ParenOpen term ParenClose
+  23       | ParenOpen term Comma term_list ParenClose
+  24       | list
+
+  25  bin_op : ArithOp
+  26         | CompOp
+  27         | StringOp
+
+  28  term_constant : VarIdentifier
+  29                | NumeralConst
+  30                | BooleanConst
+  31                | StringConst
+
+  32  term_exp_list : term_exp
+  33                | term_exp Comma term_exp_list
+
+  34  term_list : term
+  35            | term Comma term_list
+
+  36  list : BracketOpen BracketClose
+  37       | BracketOpen list_body BracketClose
+
+  38  list_body : term
+  39            | term Comma list_body
+  40            | term Pipe term
+
+  41  %entry% : '\001' program
+
+state 0
+	$accept : . %entry% $end  (0)
+
+	'\001'  shift 1
+	.  error
+
+	%entry%  goto 2
+
+
+state 1
+	%entry% : '\001' . program  (41)
+
+	Comment  shift 3
+	VarIdentifier  shift 4
+	TermIdentifier  shift 5
+	BooleanConst  shift 6
+	StringConst  shift 7
+	UnaryBoolOp  shift 8
+	NumeralConst  shift 9
+	ParenOpen  shift 10
+	BracketOpen  shift 11
+	.  error
+
+	program  goto 12
+	query  goto 13
+	clause_list  goto 14
+	term_exp_list  goto 15
+	clause  goto 16
+	fact  goto 17
+	rule  goto 18
+	term_exp  goto 19
+	term  goto 20
+	term_constant  goto 21
+	list  goto 22
+
+
+state 2
+	$accept : %entry% . $end  (0)
+
+	$end  accept
+
+
+state 3
+	clause_list : Comment .  (5)
+	clause_list : Comment . clause_list  (7)
+
+	Comment  shift 3
+	VarIdentifier  shift 4
+	TermIdentifier  shift 5
+	BooleanConst  shift 6
+	StringConst  shift 7
+	UnaryBoolOp  shift 8
+	NumeralConst  shift 9
+	ParenOpen  shift 10
+	BracketOpen  shift 11
+	EOF  reduce 5
+
+	clause_list  goto 23
+	clause  goto 16
+	fact  goto 17
+	rule  goto 18
+	term_exp  goto 24
+	term  goto 20
+	term_constant  goto 21
+	list  goto 22
+
+
+state 4
+	term_constant : VarIdentifier .  (28)
+
+	.  reduce 28
+
+
+5: reduce/reduce conflict (reduce 13, reduce 21) on ParenClose
+5: reduce/reduce conflict (reduce 13, reduce 21) on Comma
+state 5
+	term_exp : TermIdentifier . ParenOpen term_list ParenClose  (12)
+	term_exp : TermIdentifier .  (13)
+	term : TermIdentifier . ParenOpen term_list ParenClose  (18)
+	term : TermIdentifier .  (21)
+
+	ParenOpen  shift 25
+	ArithOp  reduce 21
+	StringOp  reduce 21
+	CompOp  reduce 21
+	ParenClose  reduce 13
+	Comma  reduce 13
+	Dot  reduce 13
+	Arrow  reduce 13
+
+
+6: reduce/reduce conflict (reduce 15, reduce 30) on ParenClose
+6: reduce/reduce conflict (reduce 15, reduce 30) on Comma
+state 6
+	term_exp : BooleanConst .  (15)
+	term_constant : BooleanConst .  (30)
+
+	ArithOp  reduce 30
+	StringOp  reduce 30
+	CompOp  reduce 30
+	ParenClose  reduce 15
+	Comma  reduce 15
+	Dot  reduce 15
+	Arrow  reduce 15
+
+
+state 7
+	term_constant : StringConst .  (31)
+
+	.  reduce 31
+
+
+state 8
+	term_exp : UnaryBoolOp . term  (16)
+
+	VarIdentifier  shift 4
+	TermIdentifier  shift 26
+	BooleanConst  shift 27
+	StringConst  shift 7
+	NumeralConst  shift 9
+	ParenOpen  shift 28
+	BracketOpen  shift 11
+	.  error
+
+	term  goto 29
+	term_constant  goto 21
+	list  goto 22
+
+
+state 9
+	term_constant : NumeralConst .  (29)
+
+	.  reduce 29
+
+
+state 10
+	term_exp : ParenOpen . term_exp ParenClose  (14)
+	term : ParenOpen . term ParenClose  (22)
+	term : ParenOpen . term Comma term_list ParenClose  (23)
+
+	VarIdentifier  shift 4
+	TermIdentifier  shift 5
+	BooleanConst  shift 6
+	StringConst  shift 7
+	UnaryBoolOp  shift 8
+	NumeralConst  shift 9
+	ParenOpen  shift 10
+	BracketOpen  shift 11
+	.  error
+
+	term_exp  goto 30
+	term  goto 31
+	term_constant  goto 21
+	list  goto 22
+
+
+state 11
+	list : BracketOpen . BracketClose  (36)
+	list : BracketOpen . list_body BracketClose  (37)
+
+	VarIdentifier  shift 4
+	TermIdentifier  shift 26
+	BooleanConst  shift 27
+	StringConst  shift 7
+	NumeralConst  shift 9
+	ParenOpen  shift 28
+	BracketOpen  shift 11
+	BracketClose  shift 32
+	.  error
+
+	term  goto 33
+	term_constant  goto 21
+	list  goto 22
+	list_body  goto 34
+
+
+state 12
+	%entry% : '\001' program .  (41)
+
+	.  reduce 41
+
+
+state 13
+	program : query . EOF  (2)
+
+	EOF  shift 35
+	.  error
+
+
+state 14
+	program : clause_list . EOF  (1)
+
+	EOF  shift 36
+	.  error
+
+
+state 15
+	query : term_exp_list . Dot  (3)
+
+	Dot  shift 37
+	.  error
+
+
+state 16
+	clause_list : clause .  (4)
+	clause_list : clause . clause_list  (6)
+
+	Comment  shift 3
+	VarIdentifier  shift 4
+	TermIdentifier  shift 5
+	BooleanConst  shift 6
+	StringConst  shift 7
+	UnaryBoolOp  shift 8
+	NumeralConst  shift 9
+	ParenOpen  shift 10
+	BracketOpen  shift 11
+	EOF  reduce 4
+
+	clause_list  goto 38
+	clause  goto 16
+	fact  goto 17
+	rule  goto 18
+	term_exp  goto 24
+	term  goto 20
+	term_constant  goto 21
+	list  goto 22
+
+
+state 17
+	clause : fact . Dot  (8)
+
+	Dot  shift 39
+	.  error
+
+
+state 18
+	clause : rule . Dot  (9)
+
+	Dot  shift 40
+	.  error
+
+
+19: reduce/reduce conflict (reduce 10, reduce 32) on Dot
+state 19
+	fact : term_exp .  (10)
+	rule : term_exp . Arrow term_exp_list  (11)
+	term_exp_list : term_exp .  (32)
+	term_exp_list : term_exp . Comma term_exp_list  (33)
+
+	Comma  shift 41
+	Arrow  shift 42
+	Dot  reduce 10
+
+
+state 20
+	term_exp : term . CompOp term  (17)
+	term : term . bin_op term  (19)
+
+	ArithOp  shift 43
+	StringOp  shift 44
+	CompOp  shift 45
+	.  error
+
+	bin_op  goto 46
+
+
+state 21
+	term : term_constant .  (20)
+
+	.  reduce 20
+
+
+state 22
+	term : list .  (24)
+
+	.  reduce 24
+
+
+state 23
+	clause_list : Comment clause_list .  (7)
+
+	.  reduce 7
+
+
+state 24
+	fact : term_exp .  (10)
+	rule : term_exp . Arrow term_exp_list  (11)
+
+	Arrow  shift 42
+	Dot  reduce 10
+
+
+state 25
+	term_exp : TermIdentifier ParenOpen . term_list ParenClose  (12)
+	term : TermIdentifier ParenOpen . term_list ParenClose  (18)
+
+	VarIdentifier  shift 4
+	TermIdentifier  shift 26
+	BooleanConst  shift 27
+	StringConst  shift 7
+	NumeralConst  shift 9
+	ParenOpen  shift 28
+	BracketOpen  shift 11
+	.  error
+
+	term_list  goto 47
+	term  goto 48
+	term_constant  goto 21
+	list  goto 22
+
+
+state 26
+	term : TermIdentifier . ParenOpen term_list ParenClose  (18)
+	term : TermIdentifier .  (21)
+
+	ParenOpen  shift 49
+	ArithOp  reduce 21
+	StringOp  reduce 21
+	CompOp  reduce 21
+	ParenClose  reduce 21
+	BracketClose  reduce 21
+	Comma  reduce 21
+	Dot  reduce 21
+	Arrow  reduce 21
+	Pipe  reduce 21
+
+
+state 27
+	term_constant : BooleanConst .  (30)
+
+	.  reduce 30
+
+
+state 28
+	term : ParenOpen . term ParenClose  (22)
+	term : ParenOpen . term Comma term_list ParenClose  (23)
+
+	VarIdentifier  shift 4
+	TermIdentifier  shift 26
+	BooleanConst  shift 27
+	StringConst  shift 7
+	NumeralConst  shift 9
+	ParenOpen  shift 28
+	BracketOpen  shift 11
+	.  error
+
+	term  goto 50
+	term_constant  goto 21
+	list  goto 22
+
+
+state 29
+	term_exp : UnaryBoolOp term .  (16)
+	term : term . bin_op term  (19)
+
+	ArithOp  shift 43
+	StringOp  shift 44
+	CompOp  shift 51
+	ParenClose  reduce 16
+	Comma  reduce 16
+	Dot  reduce 16
+	Arrow  reduce 16
+
+	bin_op  goto 46
+
+
+state 30
+	term_exp : ParenOpen term_exp . ParenClose  (14)
+
+	ParenClose  shift 52
+	.  error
+
+
+state 31
+	term_exp : term . CompOp term  (17)
+	term : term . bin_op term  (19)
+	term : ParenOpen term . ParenClose  (22)
+	term : ParenOpen term . Comma term_list ParenClose  (23)
+
+	ArithOp  shift 43
+	StringOp  shift 44
+	CompOp  shift 45
+	ParenClose  shift 53
+	Comma  shift 54
+	.  error
+
+	bin_op  goto 46
+
+
+state 32
+	list : BracketOpen BracketClose .  (36)
+
+	.  reduce 36
+
+
+state 33
+	term : term . bin_op term  (19)
+	list_body : term .  (38)
+	list_body : term . Comma list_body  (39)
+	list_body : term . Pipe term  (40)
+
+	ArithOp  shift 43
+	StringOp  shift 44
+	CompOp  shift 51
+	Comma  shift 55
+	Pipe  shift 56
+	BracketClose  reduce 38
+
+	bin_op  goto 46
+
+
+state 34
+	list : BracketOpen list_body . BracketClose  (37)
+
+	BracketClose  shift 57
+	.  error
+
+
+state 35
+	program : query EOF .  (2)
+
+	.  reduce 2
+
+
+state 36
+	program : clause_list EOF .  (1)
+
+	.  reduce 1
+
+
+state 37
+	query : term_exp_list Dot .  (3)
+
+	.  reduce 3
+
+
+state 38
+	clause_list : clause clause_list .  (6)
+
+	.  reduce 6
+
+
+state 39
+	clause : fact Dot .  (8)
+
+	.  reduce 8
+
+
+state 40
+	clause : rule Dot .  (9)
+
+	.  reduce 9
+
+
+state 41
+	term_exp_list : term_exp Comma . term_exp_list  (33)
+
+	VarIdentifier  shift 4
+	TermIdentifier  shift 5
+	BooleanConst  shift 6
+	StringConst  shift 7
+	UnaryBoolOp  shift 8
+	NumeralConst  shift 9
+	ParenOpen  shift 10
+	BracketOpen  shift 11
+	.  error
+
+	term_exp_list  goto 58
+	term_exp  goto 59
+	term  goto 20
+	term_constant  goto 21
+	list  goto 22
+
+
+state 42
+	rule : term_exp Arrow . term_exp_list  (11)
+
+	VarIdentifier  shift 4
+	TermIdentifier  shift 5
+	BooleanConst  shift 6
+	StringConst  shift 7
+	UnaryBoolOp  shift 8
+	NumeralConst  shift 9
+	ParenOpen  shift 10
+	BracketOpen  shift 11
+	.  error
+
+	term_exp_list  goto 60
+	term_exp  goto 59
+	term  goto 20
+	term_constant  goto 21
+	list  goto 22
+
+
+state 43
+	bin_op : ArithOp .  (25)
+
+	.  reduce 25
+
+
+state 44
+	bin_op : StringOp .  (27)
+
+	.  reduce 27
+
+
+45: shift/reduce conflict (shift 4, reduce 26) on VarIdentifier
+45: shift/reduce conflict (shift 26, reduce 26) on TermIdentifier
+45: shift/reduce conflict (shift 27, reduce 26) on BooleanConst
+45: shift/reduce conflict (shift 7, reduce 26) on StringConst
+45: shift/reduce conflict (shift 9, reduce 26) on NumeralConst
+45: shift/reduce conflict (shift 28, reduce 26) on ParenOpen
+45: shift/reduce conflict (shift 11, reduce 26) on BracketOpen
+state 45
+	term_exp : term CompOp . term  (17)
+	bin_op : CompOp .  (26)
+
+	VarIdentifier  shift 4
+	TermIdentifier  shift 26
+	BooleanConst  shift 27
+	StringConst  shift 7
+	NumeralConst  shift 9
+	ParenOpen  shift 28
+	BracketOpen  shift 11
+
+	term  goto 61
+	term_constant  goto 21
+	list  goto 22
+
+
+state 46
+	term : term bin_op . term  (19)
+
+	VarIdentifier  shift 4
+	TermIdentifier  shift 26
+	BooleanConst  shift 27
+	StringConst  shift 7
+	NumeralConst  shift 9
+	ParenOpen  shift 28
+	BracketOpen  shift 11
+	.  error
+
+	term  goto 62
+	term_constant  goto 21
+	list  goto 22
+
+
+state 47
+	term_exp : TermIdentifier ParenOpen term_list . ParenClose  (12)
+	term : TermIdentifier ParenOpen term_list . ParenClose  (18)
+
+	ParenClose  shift 63
+	.  error
+
+
+state 48
+	term : term . bin_op term  (19)
+	term_list : term .  (34)
+	term_list : term . Comma term_list  (35)
+
+	ArithOp  shift 43
+	StringOp  shift 44
+	CompOp  shift 51
+	Comma  shift 64
+	ParenClose  reduce 34
+
+	bin_op  goto 46
+
+
+state 49
+	term : TermIdentifier ParenOpen . term_list ParenClose  (18)
+
+	VarIdentifier  shift 4
+	TermIdentifier  shift 26
+	BooleanConst  shift 27
+	StringConst  shift 7
+	NumeralConst  shift 9
+	ParenOpen  shift 28
+	BracketOpen  shift 11
+	.  error
+
+	term_list  goto 65
+	term  goto 48
+	term_constant  goto 21
+	list  goto 22
+
+
+state 50
+	term : term . bin_op term  (19)
+	term : ParenOpen term . ParenClose  (22)
+	term : ParenOpen term . Comma term_list ParenClose  (23)
+
+	ArithOp  shift 43
+	StringOp  shift 44
+	CompOp  shift 51
+	ParenClose  shift 53
+	Comma  shift 54
+	.  error
+
+	bin_op  goto 46
+
+
+state 51
+	bin_op : CompOp .  (26)
+
+	.  reduce 26
+
+
+state 52
+	term_exp : ParenOpen term_exp ParenClose .  (14)
+
+	.  reduce 14
+
+
+state 53
+	term : ParenOpen term ParenClose .  (22)
+
+	.  reduce 22
+
+
+state 54
+	term : ParenOpen term Comma . term_list ParenClose  (23)
+
+	VarIdentifier  shift 4
+	TermIdentifier  shift 26
+	BooleanConst  shift 27
+	StringConst  shift 7
+	NumeralConst  shift 9
+	ParenOpen  shift 28
+	BracketOpen  shift 11
+	.  error
+
+	term_list  goto 66
+	term  goto 48
+	term_constant  goto 21
+	list  goto 22
+
+
+state 55
+	list_body : term Comma . list_body  (39)
+
+	VarIdentifier  shift 4
+	TermIdentifier  shift 26
+	BooleanConst  shift 27
+	StringConst  shift 7
+	NumeralConst  shift 9
+	ParenOpen  shift 28
+	BracketOpen  shift 11
+	.  error
+
+	term  goto 33
+	term_constant  goto 21
+	list  goto 22
+	list_body  goto 67
+
+
+state 56
+	list_body : term Pipe . term  (40)
+
+	VarIdentifier  shift 4
+	TermIdentifier  shift 26
+	BooleanConst  shift 27
+	StringConst  shift 7
+	NumeralConst  shift 9
+	ParenOpen  shift 28
+	BracketOpen  shift 11
+	.  error
+
+	term  goto 68
+	term_constant  goto 21
+	list  goto 22
+
+
+state 57
+	list : BracketOpen list_body BracketClose .  (37)
+
+	.  reduce 37
+
+
+state 58
+	term_exp_list : term_exp Comma term_exp_list .  (33)
+
+	.  reduce 33
+
+
+state 59
+	term_exp_list : term_exp .  (32)
+	term_exp_list : term_exp . Comma term_exp_list  (33)
+
+	Comma  shift 41
+	Dot  reduce 32
+
+
+state 60
+	rule : term_exp Arrow term_exp_list .  (11)
+
+	.  reduce 11
+
+
+state 61
+	term_exp : term CompOp term .  (17)
+	term : term . bin_op term  (19)
+
+	ArithOp  shift 43
+	StringOp  shift 44
+	CompOp  shift 51
+	ParenClose  reduce 17
+	Comma  reduce 17
+	Dot  reduce 17
+	Arrow  reduce 17
+
+	bin_op  goto 46
+
+
+62: shift/reduce conflict (shift 43, reduce 19) on ArithOp
+62: shift/reduce conflict (shift 44, reduce 19) on StringOp
+62: shift/reduce conflict (shift 51, reduce 19) on CompOp
+state 62
+	term : term . bin_op term  (19)
+	term : term bin_op term .  (19)
+
+	ArithOp  shift 43
+	StringOp  shift 44
+	CompOp  shift 51
+	ParenClose  reduce 19
+	BracketClose  reduce 19
+	Comma  reduce 19
+	Dot  reduce 19
+	Arrow  reduce 19
+	Pipe  reduce 19
+
+	bin_op  goto 46
+
+
+63: reduce/reduce conflict (reduce 12, reduce 18) on ParenClose
+63: reduce/reduce conflict (reduce 12, reduce 18) on Comma
+state 63
+	term_exp : TermIdentifier ParenOpen term_list ParenClose .  (12)
+	term : TermIdentifier ParenOpen term_list ParenClose .  (18)
+
+	ArithOp  reduce 18
+	StringOp  reduce 18
+	CompOp  reduce 18
+	ParenClose  reduce 12
+	Comma  reduce 12
+	Dot  reduce 12
+	Arrow  reduce 12
+
+
+state 64
+	term_list : term Comma . term_list  (35)
+
+	VarIdentifier  shift 4
+	TermIdentifier  shift 26
+	BooleanConst  shift 27
+	StringConst  shift 7
+	NumeralConst  shift 9
+	ParenOpen  shift 28
+	BracketOpen  shift 11
+	.  error
+
+	term_list  goto 69
+	term  goto 48
+	term_constant  goto 21
+	list  goto 22
+
+
+state 65
+	term : TermIdentifier ParenOpen term_list . ParenClose  (18)
+
+	ParenClose  shift 70
+	.  error
+
+
+state 66
+	term : ParenOpen term Comma term_list . ParenClose  (23)
+
+	ParenClose  shift 71
+	.  error
+
+
+state 67
+	list_body : term Comma list_body .  (39)
+
+	.  reduce 39
+
+
+state 68
+	term : term . bin_op term  (19)
+	list_body : term Pipe term .  (40)
+
+	ArithOp  shift 43
+	StringOp  shift 44
+	CompOp  shift 51
+	BracketClose  reduce 40
+
+	bin_op  goto 46
+
+
+state 69
+	term_list : term Comma term_list .  (35)
+
+	.  reduce 35
+
+
+state 70
+	term : TermIdentifier ParenOpen term_list ParenClose .  (18)
+
+	.  reduce 18
+
+
+state 71
+	term : ParenOpen term Comma term_list ParenClose .  (23)
+
+	.  reduce 23
+
+
+State 5 contains 2 reduce/reduce conflicts.
+State 6 contains 2 reduce/reduce conflicts.
+State 19 contains 1 reduce/reduce conflict.
+State 45 contains 7 shift/reduce conflicts.
+State 62 contains 3 shift/reduce conflicts.
+State 63 contains 2 reduce/reduce conflicts.
+
+
+23 terminals, 16 nonterminals
+42 grammar rules, 72 states
